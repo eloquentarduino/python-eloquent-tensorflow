@@ -1,0 +1,9 @@
+LICENSE
+README.md
+setup.py
+eloquent_tensorflow/__init__.py
+eloquent_tensorflow.egg-info/PKG-INFO
+eloquent_tensorflow.egg-info/SOURCES.txt
+eloquent_tensorflow.egg-info/dependency_links.txt
+eloquent_tensorflow.egg-info/requires.txt
+eloquent_tensorflow.egg-info/top_level.txt
