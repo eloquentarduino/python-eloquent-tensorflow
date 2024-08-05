@@ -1,3 +1,7 @@
+"""
+Requires Keras 2.x
+Doesn't work with Keras 3.x
+"""
 import hexdump
 import numpy as np
 import tensorflow as tf
@@ -55,14 +59,14 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     :param model_name:
     :return:
     """
-    input_shape = [d or 1 for d in model.layers[0].input.shape]
+    input_shape = [d or 1 for d in model.layers[0].input_shape]
     num_inputs = np.prod(input_shape[1:])
-    num_outputs = np.prod(model.layers[-1].output.shape)
+    num_outputs = model.layers[-1].output_shape[1]
 
     # give user hint of which layers to include
     unique_layers = set([layer.__class__.__name__ for layer in model.layers])
     layer_mapping = {
-         'Add': 'Add',
+        'Add': 'Add',
          'AvgPool2D': 'AveragePool2D',
          'Concatenate': 'Concatenation',
          'Conv2D': 'Conv2D',
@@ -99,17 +103,16 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     not_allowed_layers = set(not_allowed_layers)
 
     # convert model to bytes
-    # if 'UnidirectionalSequenceLSTM' in allowed_layers:
-    #     # see https://github.com/tensorflow/tflite-micro/issues/2006#issuecomment-1567349993
-    #     run_model = tf.function(lambda x: model(x))
-    #     concrete_func = run_model.get_concrete_function(tf.TensorSpec(input_shape, model.inputs[0].dtype))
-    #
-    #     with TemporaryDirectory() as model_dir:
-    #         model.save("model.keras", overwrite=True, signatures=concrete_func)
-    #         converter = tf.lite.TFLiteConverter.from_saved_model(model_dir)
-    #         converted = converter.convert()
-    # else:
-    if True:
+    if 'UnidirectionalSequenceLSTM' in allowed_layers:
+        # see https://github.com/tensorflow/tflite-micro/issues/2006#issuecomment-1567349993
+        run_model = tf.function(lambda x: model(x))
+        concrete_func = run_model.get_concrete_function(tf.TensorSpec(input_shape, model.inputs[0].dtype))
+
+        with TemporaryDirectory() as model_dir:
+            model.save(model_dir, save_format='tf', signatures=concrete_func)
+            converter = tf.lite.TFLiteConverter.from_saved_model(model_dir)
+            converted = converter.convert()
+    else:
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
 
         try:
@@ -125,6 +128,4 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     model_size = len(model_bytes)
 
     # use Jinja to generate clean code
-    template = Template(TEMPLATE)
-
-    return template.render(**locals())
+    return Template(TEMPLATE).render(**locals())
