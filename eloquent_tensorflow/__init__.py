@@ -22,7 +22,7 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     # give user hint of which layers to include
     unique_layers = set([layer.__class__.__name__ for layer in model.layers])
     layer_mapping = {
-        'Add': 'Add',
+         'Add': 'Add',
          'AvgPool2D': 'AveragePool2D',
          'Concatenate': 'Concatenation',
          'Conv2D': 'Conv2D',
@@ -59,16 +59,17 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     not_allowed_layers = set(not_allowed_layers)
 
     # convert model to bytes
-    if 'UnidirectionalSequenceLSTM' in allowed_layers:
-        # see https://github.com/tensorflow/tflite-micro/issues/2006#issuecomment-1567349993
-        run_model = tf.function(lambda x: model(x))
-        concrete_func = run_model.get_concrete_function(tf.TensorSpec(input_shape, model.inputs[0].dtype))
-
-        with TemporaryDirectory() as model_dir:
-            model.save(model_dir, save_format='tf', signatures=concrete_func)
-            converter = tf.lite.TFLiteConverter.from_saved_model(model_dir)
-            converted = converter.convert()
-    else:
+    # if 'UnidirectionalSequenceLSTM' in allowed_layers:
+    #     # see https://github.com/tensorflow/tflite-micro/issues/2006#issuecomment-1567349993
+    #     run_model = tf.function(lambda x: model(x))
+    #     concrete_func = run_model.get_concrete_function(tf.TensorSpec(input_shape, model.inputs[0].dtype))
+    #
+    #     with TemporaryDirectory() as model_dir:
+    #         model.save("model.keras", overwrite=True, signatures=concrete_func)
+    #         converter = tf.lite.TFLiteConverter.from_saved_model(model_dir)
+    #         converted = converter.convert()
+    # else:
+    if True:
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
 
         try:
