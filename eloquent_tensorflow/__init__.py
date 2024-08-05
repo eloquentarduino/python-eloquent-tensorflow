@@ -6,6 +6,46 @@ from jinja2 import Template
 from tensorflow.lite.python.convert_phase import ConverterError
 
 
+TEMPLATE = """
+#pragma once
+
+#ifdef __has_attribute
+#define HAVE_ATTRIBUTE(x) __has_attribute(x)
+#else
+#define HAVE_ATTRIBUTE(x) 0
+#endif
+#if HAVE_ATTRIBUTE(aligned) || (defined(__GNUC__) && !defined(__clang__))
+#define DATA_ALIGN_ATTRIBUTE __attribute__((aligned(4)))
+#else
+#define DATA_ALIGN_ATTRIBUTE
+#endif
+
+// automatically configure network
+{% if num_inputs is not none %}#define TF_NUM_INPUTS {{ num_inputs }}{% endif %}
+{% if num_outputs is not none %}#define TF_NUM_OUTPUTS {{ num_outputs }}{% endif %}
+#define TF_NUM_OPS {{ allowed_layers | length }}
+
+{% if allowed_layers | length > 0 %}/**
+ * Call this function to register the ops
+ * that have been detected
+ */
+template<class TF>
+void registerNetworkOps(TF& nn) {
+    {% for layer in allowed_layers %}nn.resolver.Add{{ layer }}();
+    {% endfor %}
+}
+{% endif %}
+
+{% if not_allowed_layers | length %}// these layers are used in Python
+// but are not allowed in Arduino
+{% for layer in not_allowed_layers %}// - {{ layer }}
+{% endfor %}{% endif %}
+
+// model data
+const unsigned char {{ model_name }}[{{ model_size }}] DATA_ALIGN_ATTRIBUTE = { {{ bytes_array }} };
+"""
+
+
 def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name: str = 'tfModel') -> str:
     """
     Convert TensorFlow model to C header for Arduino
@@ -85,7 +125,6 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     model_size = len(model_bytes)
 
     # use Jinja to generate clean code
-    with open('template.jinja') as file:
-        template = Template(file.read())
+    template = Template(TEMPLATE)
 
-        return template.render(**locals())
+    return template.render(**locals())
