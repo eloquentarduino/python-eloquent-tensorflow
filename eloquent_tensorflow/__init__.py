@@ -15,9 +15,9 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     :param model_name:
     :return:
     """
-    input_shape = [d or 1 for d in model.layers[0].input_shape]
+    input_shape = [d or 1 for d in model.layers[0].input.shape]
     num_inputs = np.prod(input_shape[1:])
-    num_outputs = model.layers[-1].output_shape[1]
+    num_outputs = np.prod(model.layers[-1].output.shape)
 
     # give user hint of which layers to include
     unique_layers = set([layer.__class__.__name__ for layer in model.layers])
