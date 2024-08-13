@@ -76,6 +76,7 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
          'LSTM': 'UnidirectionalSequenceLSTM',
          'LeakyReLU': 'LeakyRelu',
          'MaxPool2D': 'MaxPool2D',
+         'MaxPooling2D': 'MaxPool2D',
          'Maximum': 'Maximum',
          'Minimum': 'Minimum',
          'PReLU': 'Prelu',
