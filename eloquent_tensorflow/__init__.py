@@ -73,6 +73,7 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
          'Dense': 'FullyConnected',
          'DepthwiseConv2D': 'DepthwiseConv2D',
          'ELU': 'Elu',
+         'Flatten': 'Reshape',
          'LSTM': 'UnidirectionalSequenceLSTM',
          'LeakyReLU': 'LeakyRelu',
          'MaxPool2D': 'MaxPool2D',
