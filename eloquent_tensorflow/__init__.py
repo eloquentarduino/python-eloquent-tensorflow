@@ -68,6 +68,7 @@ def convert_model(model, X: np.ndarray = None, y: np.ndarray = None, model_name:
     layer_mapping = {
         'Add': 'Add',
          'AvgPool2D': 'AveragePool2D',
+         'AvgPooling2D': 'AveragePool2D',
          'Concatenate': 'Concatenation',
          'Conv2D': 'Conv2D',
          'Dense': 'FullyConnected',
