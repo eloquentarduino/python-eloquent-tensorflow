@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(
   name='eloquent_tensorflow',
   packages=['eloquent_tensorflow'],
-  version='1.0.6',
+  version='1.0.7',
   license='MIT',
   description='A utility to convert TensorFlow models to Arduino code',
   author='Simone Salerno',
